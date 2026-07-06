@@ -1,0 +1,39 @@
+# ╔══════════════════════════════════════╗
+# ║       ItemCommandPlugin Config       ║
+# ╚══════════════════════════════════════╝
+
+# Délai anti-spam entre deux utilisations (en millisecondes)
+cooldown-ms: 500
+
+# Liste des items déclencheurs
+# Chaque entrée peut avoir :
+#   name        : nom affiché de l'item (supporte les codes couleur &)
+#   material    : type d'item Bukkit (ex: BLAZE_ROD, COMPASS, PAPER...)
+#   slot        : slot de hotbar (0-8), -1 = n'importe quel slot de hotbar
+#   command     : commande exécutée en console (%player% = nom du joueur)
+#   permission  : (optionnel) permission requise pour utiliser cet item
+#   only-hotbar : true = seulement si l'item est tenu en main, false = inventaire entier
+
+items:
+  menu_principal:
+    name: "&6&lMenu Principal"
+    material: COMPASS
+    slot: -1
+    command: "menu open %player%"
+    permission: "itemcommand.use"
+    only-hotbar: true
+
+  teleport_spawn:
+    name: "&a&lRetour au Spawn"
+    material: BLAZE_ROD
+    slot: 8
+    command: "spawn %player%"
+    permission: "itemcommand.use"
+    only-hotbar: true
+
+# Messages (supporte les codes couleur &)
+messages:
+  cooldown: "&cVeuillez patienter avant de réutiliser cet item."
+  no-permission: "&cVous n'avez pas la permission d'utiliser cet item."
+  reloaded: "&aConfiguration rechargée avec succès."
+  item-given: "&aItem donné à &e%player%&a."

@@ -1,0 +1,20 @@
+name: ItemCommandPlugin
+version: '${project.version}'
+main: fr.itemcommand.ItemCommandPlugin
+api-version: '1.21'
+description: Exécute une commande console au clic droit sur un item nommé
+authors: [ Toi ]
+
+commands:
+  itemcmd:
+    description: Commandes d'administration du plugin
+    usage: /itemcmd <reload|give>
+    permission: itemcommand.admin
+
+permissions:
+  itemcommand.admin:
+    description: Accès aux commandes admin du plugin
+    default: op
+  itemcommand.use:
+    description: Peut utiliser l'item pour exécuter la commande
+    default: true
