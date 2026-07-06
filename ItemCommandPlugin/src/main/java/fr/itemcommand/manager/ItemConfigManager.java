@@ -2,8 +2,8 @@ package fr.itemcommand.manager;
 
 import fr.itemcommand.ItemCommandPlugin;
 import fr.itemcommand.model.TriggerItem;
-import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.inventory.ItemStack;
@@ -11,9 +11,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.*;
 
-/**
- * Charge et expose les TriggerItem depuis config.yml.
- */
 public class ItemConfigManager {
 
     private final ItemCommandPlugin plugin;
@@ -23,10 +20,6 @@ public class ItemConfigManager {
     public ItemConfigManager(ItemCommandPlugin plugin) {
         this.plugin = plugin;
     }
-
-    // ─────────────────────────────────────────────
-    //  Chargement
-    // ─────────────────────────────────────────────
 
     public void load() {
         items.clear();
@@ -43,16 +36,16 @@ public class ItemConfigManager {
             ConfigurationSection sec = itemsSection.getConfigurationSection(key);
             if (sec == null) continue;
 
-            String rawName   = sec.getString("name", "&fItem");
-            String matStr    = sec.getString("material", "PAPER");
-            int slot         = sec.getInt("slot", -1);
-            String command   = sec.getString("command", "");
-            String perm      = sec.getString("permission", null);
-            boolean hotbar   = sec.getBoolean("only-hotbar", true);
+            String rawName = sec.getString("name", "&fItem");
+            String matStr  = sec.getString("material", "PAPER");
+            int slot       = sec.getInt("slot", -1);
+            String command = sec.getString("command", "");
+            String perm    = sec.getString("permission", null);
+            boolean hotbar = sec.getBoolean("only-hotbar", true);
 
             Material mat = Material.matchMaterial(matStr);
             if (mat == null) {
-                plugin.getLogger().warning("[ItemCommandPlugin] Material inconnu pour l'item '" + key + "' : " + matStr);
+                plugin.getLogger().warning("Material inconnu pour '" + key + "' : " + matStr);
                 continue;
             }
 
@@ -62,13 +55,6 @@ public class ItemConfigManager {
         }
     }
 
-    // ─────────────────────────────────────────────
-    //  Matching
-    // ─────────────────────────────────────────────
-
-    /**
-     * Retourne la liste des TriggerItem qui correspondent à l'item tenu et au slot.
-     */
     public List<TriggerItem> getMatching(ItemStack held, int slot) {
         if (held == null || held.getType().isAir()) return Collections.emptyList();
 
@@ -83,54 +69,48 @@ public class ItemConfigManager {
     }
 
     /**
-     * Vérifie que le nom affiché de l'ItemStack correspond au nom configuré.
+     * Compare les noms en plain text pour éviter tout problème
+     * d'encodage §/& entre Paper et Adventure API.
      */
-    private boolean matchesName(ItemStack item, String expectedName) {
+    private boolean matchesName(ItemStack item, String expectedLegacy) {
         if (!item.hasItemMeta()) return false;
         ItemMeta meta = item.getItemMeta();
         if (meta == null || !meta.hasDisplayName()) return false;
 
-        // On compare en serialisant le Component Adventure en legacy string
-        String itemName = LegacyComponentSerializer.legacySection()
+        // Nom de l'item en jeu → plain text
+        String itemPlain = PlainTextComponentSerializer.plainText()
                 .serialize(meta.displayName());
-        return itemName.equals(expectedName);
+
+        // Nom configuré (§x) → Component → plain text
+        String expectedPlain = PlainTextComponentSerializer.plainText()
+                .serialize(LegacyComponentSerializer.legacySection()
+                        .deserialize(expectedLegacy));
+
+        return itemPlain.equals(expectedPlain);
     }
 
-    // ─────────────────────────────────────────────
-    //  Création d'un item prêt à donner
-    // ─────────────────────────────────────────────
-
-    /**
-     * Crée un ItemStack correspondant au TriggerItem (pour /itemcmd give).
-     */
     public ItemStack createItemStack(TriggerItem ti) {
         ItemStack stack = new ItemStack(ti.getMaterial());
         ItemMeta meta = stack.getItemMeta();
         if (meta != null) {
-            Component nameComponent = LegacyComponentSerializer.legacySection()
-                    .deserialize(ti.getDisplayName());
-            meta.displayName(nameComponent);
+            meta.displayName(LegacyComponentSerializer.legacySection()
+                    .deserialize(ti.getDisplayName()));
             stack.setItemMeta(meta);
         }
         return stack;
     }
 
-    // ─────────────────────────────────────────────
-    //  Utilitaires
-    // ─────────────────────────────────────────────
-
-    /** Convertit les codes &x en §x. */
     public static String translateColors(String raw) {
         return raw.replace("&", "§");
     }
 
-    /** Message depuis config.yml avec substitution de %player%. */
     public String getMessage(String key, String playerName) {
-        String msg = plugin.getConfig().getString("messages." + key, "&c[ItemCmd] Message manquant : " + key);
+        String msg = plugin.getConfig().getString("messages." + key,
+                "&c[ItemCmd] Message manquant : " + key);
         return translateColors(msg).replace("%player%", playerName != null ? playerName : "");
     }
 
-    public long getCooldownMs()      { return cooldownMs; }
-    public int  getItemCount()       { return items.size(); }
-    public List<TriggerItem> getAll(){ return Collections.unmodifiableList(items); }
+    public long getCooldownMs()       { return cooldownMs; }
+    public int  getItemCount()        { return items.size(); }
+    public List<TriggerItem> getAll() { return Collections.unmodifiableList(items); }
 }

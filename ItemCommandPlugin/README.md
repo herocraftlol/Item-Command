@@ -1,5 +1,7 @@
 # ItemCommandPlugin — Paper 1.21
 
+**Version 2.0.0**
+
 Plugin Paper 1.21 qui exécute une commande **console (OP)** lorsqu'un joueur
 fait un **clic droit** sur un item avec un nom personnalisé dans sa hotbar.
 
@@ -14,9 +16,9 @@ Fonctionne sur **tous les serveurs Paper de ton réseau BungeeCord**
    ```bash
    mvn clean package
    ```
-   Le `.jar` est dans `target/ItemCommandPlugin-1.0.0.jar`.
+   Le `.jar` est dans `target/ItemCommandPlugin-2.0.0.jar`.
 
-2. **Déposer** `ItemCommandPlugin-1.0.0.jar` dans le dossier `plugins/`
+2. **Déposer** `ItemCommandPlugin-2.0.0.jar` dans le dossier `plugins/`
    de chaque serveur Paper 1.21 du réseau.
 
 3. **Redémarrer** le serveur. Un fichier `plugins/ItemCommandPlugin/config.yml`
